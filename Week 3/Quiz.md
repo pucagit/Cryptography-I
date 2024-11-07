@@ -25,27 +25,23 @@ Let $(S, V)$ be a secure MAC defined over $(K, M, T)$ where $M = \{0, 1\}^{n}$ a
 - [ ] $S'(k, m) = S(k, m \oplus m )$ and $V'(k, m, t) = V(k, m \oplus m, t)$
 - [x] $S'(k, m) = S(k, m || m )$ and $V'(k, m, t) = V(k, m || m, t)$
   > **Explain:** a forger for $(S', V')$ gives a forger for $(S, V)$
-- [ ] _S'(k, m) = S(k, m) and
-      \begin{align_}
-      V'(k, m, t) &=
-      \left\{
-      \begin{array}{ll}
-      V(k, m, t) & \text{if } m \neq 0^{n} \\
+- [ ] \( S'(k, m) = S(k, m) \) and
+      \[
+      V'(k, m, t) =
+      \begin{cases} 
+      V(k, m, t) & \text{if } m \neq 0^n \\ 
       1 & \text{otherwise}
-      \end{array}
-      \right.
-      \end{align*}*
+      \end{cases}
+      \]
 - [ ] $S'(k, m) = S(k, m[0, ..., n - 2] || 0)$ and $V'(k, m, t) = V(k, m[0, ..., n - 2] || 0)$
-- [x] $S'(k, m) = [t \leftarrow S(k, m), output(t, t)]$ and
-      \begin{align*}
-      V'(k, m, (t_1, t_2)) &=
-      \left\{
-      \begin{array}{ll}
-      V(k, m, t_1) & \text{if } t_1 = t_2 \\
+- [x] \( S'(k, m) = [t \leftarrow S(k, m), \text{ output}(t, t)] \) and
+      \[
+      V'(k, m, (t_1, t_2)) =
+      \begin{cases} 
+      V(k, m, t_1) & \text{if } t_1 = t_2 \\ 
       0 & \text{otherwise}
-      \end{array}
-      \right.
-      \end{align*}
+      \end{cases}
+      \]
       (i.e. $V'(k, m, (t_1, t_2))$ only outputs `1` if $t_1$ and $t_2$ are equal and valid)
   > **Explain:** a forger for $(S', V')$ gives a forger for $(S, V)$
 
