@@ -1,5 +1,39 @@
 # CS 255: Intro to Cryptography
-## End-to-end Encrypted Chat Client
+### Báo Cáo Về Chương Trình Chat Bảo Mật trong Khóa Học Cryptography I
+
+#### Giới Thiệu
+Trong dự án này thuộc khóa học Cryptography I của Dan Boneh, chúng tôi đã triển khai một ứng dụng chat bảo mật với mã hóa đầu-cuối sử dụng thuật toán Double Ratchet. Thuật toán này, được sử dụng trong các ứng dụng nhắn tin bảo mật như Signal, đảm bảo tính bảo mật chuyển tiếp (forward secrecy) và khả năng khôi phục sau xâm nhập (break-in recovery). Ngoài ra, để mô phỏng tình huống giám sát của chính phủ, chúng tôi đã tích hợp một tính năng mã hóa khóa phiên bằng khóa công khai do chính phủ cấp, cho phép giải mã tin nhắn bởi chính phủ trong khi vẫn bảo vệ quyền riêng tư khỏi các bên không được phép.
+
+#### Tổng Quan Về Triển Khai
+Triển khai bao gồm ba thành phần chính:
+
+1. **Các Nguyên Thủy Mật Mã (lib.js)**: File này cung cấp các hàm mật mã cơ bản sử dụng API Web Crypto, được bọc trong các hàm hỗ trợ. Các nguyên thủy quan trọng gồm có:
+   - `generateEG()`: Tạo cặp khóa ElGamal cho trao đổi khóa Diffie-Hellman.
+   - `encryptWithGCM()` và `decryptWithGCM()`: Sử dụng cho mã hóa và giải mã AES-GCM.
+   - `HMACtoAESKey()` và `HMACtoHMACKey()`: Dùng để dẫn xuất khóa cho các thao tác AES và HMAC.
+   - `HKDF()`: Thực hiện dẫn xuất khóa cho cơ chế ratchet, như mô tả trong giao thức Signal.
+
+2. **Lớp MessengerClient (messenger.js)**: Đây là phần cốt lõi của ứng dụng chat, thực hiện thuật toán Double Ratchet để thiết lập phiên bảo mật và mã hóa tin nhắn.
+   - `generateCertificate()`: Tạo chứng chỉ chứa khóa công khai ElGamal cho trao đổi khóa.
+   - `receiveCertificate()`: Nhận và xác minh chứng chỉ bằng khóa công khai của Cơ Quan Chứng Nhận (CA).
+   - `sendMessage()`: Mã hóa tin nhắn bằng AES-GCM với các khóa được dẫn xuất qua cơ chế ratchet. Mỗi tin nhắn bao gồm một tiêu đề mã hóa với các chi tiết để dẫn xuất khóa giải mã.
+   - `receiveMessage()`: Giải mã tin nhắn nhận được bằng các khóa được dẫn xuất qua ratchet và xác thực tính toàn vẹn của tin nhắn.
+
+3. **Kiểm Thử (test-messenger.js)**: File này chứa các bài kiểm thử đơn vị để kiểm tra chức năng của ứng dụng, bao gồm mã hóa, giải mã tin nhắn, xử lý nhiều cuộc trò chuyện, và khả năng giải mã của chính phủ. Các kiểm thử xác nhận rằng:
+   - Tin nhắn mã hóa không thể đọc được nếu không có khóa tương ứng.
+   - Chính phủ có thể giải mã tin nhắn sử dụng khóa phiên được mã hóa.
+   - Các cuộc tấn công phát lại, chứng chỉ không hợp lệ, và người nhận sai đều được xử lý đúng cách.
+
+#### Tính Bảo Mật
+Ứng dụng chat đảm bảo:
+- **Bảo Mật Chuyển Tiếp (Forward Secrecy)**: Việc lộ khóa hiện tại không làm lộ các tin nhắn trong quá khứ, vì mỗi tin nhắn có khóa riêng nhờ cơ chế Double Ratchet.
+- **Khả Năng Khôi Phục Sau Xâm Nhập (Break-in Recovery)**: Nếu kẻ tấn công có quyền truy cập vào khóa hiện tại, bảo mật giao tiếp có thể được khôi phục khi cả hai bên trao đổi tin nhắn mới.
+- **Giải Mã Bởi Chính Phủ**: Bằng cách mã hóa khóa phiên bằng khóa công khai của chính phủ, ứng dụng cho phép chính phủ giải mã các tin nhắn mà không làm mất tính bảo mật chuyển tiếp đối với các bên không mong muốn.
+
+#### Kết Luận
+Dự án này minh họa một ứng dụng chat bảo mật sử dụng thuật toán Double Ratchet, có khả năng bảo mật giao tiếp ngay cả trong điều kiện giám sát của chính phủ. Triển khai này đã áp dụng thành công các nguyên lý mật mã học được trong khóa học, đảm bảo cả quyền riêng tư cho người dùng và khả năng truy cập có kiểm soát cho các bên được ủy quyền.
+
+---
 
 ### Short answer question
 Here are answers to the short-answer questions in Section 7:
