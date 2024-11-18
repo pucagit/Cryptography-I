@@ -127,3 +127,80 @@ Which of the following must be true:
 - [ ] Either $x, y$ are a collision for $H_2$ or $H_1(x), H_1(y)$ are a collision for $H_1$.
 
 > **Explain:** If $H_2(H_1(x)) = H_2(H_1(y))$ then either $H_1(x) = H_1(y)$ and $x \neq y$, thereby giving us a collision on $H_1$. Or $H_1(x) \neq H_1(y)$ but $H_2(H_1(x)) = H_2(H_1(y))$ giving us a collision on $H_2$. Either way we obtain a collision on $H_1$ or $H_2$ which is opposite from the given task.
+
+### Problem 11.
+If you need to build an application that needs to encrypt multiple messages using a single key, what encryption method should you use? (for now, we ignore the question of key generation and management)
+- [ ] Invent your own encryption mode using AES and implement it yourself.
+- [ ] Use a standard implementation of CBC encryption with a random $IV$.
+- [x] Use a standard implementation of an authenticated encryption mode such as AES-GCM.
+- [ ] Implement Encrypt-then-Mac yourself based on Intel's AES-NI.
+
+### Problem 12.
+Let $(E, D)$ be a symmetric encryption system with message space $M$ (think of $M$ as only consisting for short messages, say $32$ bytes). Define the following MAC $(S, V)$ for messages in $M$:
+\( S(k, m) := E(k, m); \quad V(k, m, t) := 
+\begin{cases} 
+1 & \text{if } D(k, t) = m \\ 
+0 & \text{otherwise}
+\end{cases} \)
+What is the property that the encryption system $(E, D)$ needs to satisfy for this MAC system to be secure?
+- [x] Ciphertext integrity
+- [ ] Perfect secrecy
+- [ ] Semantic security
+- [ ] Semantic security under a chosen plaintext attack
+
+> **Explain:** Prevents existential forgery under a chosen message attack.
+
+### Problem 13.
+What is $7^{1000000}$ mod $1255$? Use Euler's theorem
+Please do not use a calculator for this.  Hint: 251 is a prime number.
+
+- [ ] $7$
+- [x] $1$
+- [ ] $7^{-1}$
+- [ ] $-1$
+- [ ] $3$
+
+> **Explain:** 
+> - By Euler: $x^{\phi(N)} = 1$ in $\mathbb{Z}_N$
+> - We have $\phi(1255) = (251 - 1) \times (5 - 1) = 1000 \rightarrow 7^{1000} = 1$ in $\mathbb{Z}_N$
+> - Therefore $7^{1000000} = 1$ in $\mathbb{Z}_N$
+
+### Problem 14.
+Consider the RSA public key $(n, e)$ where $n = 1255$ and $e = 3$. What is the private decryption exponent $d$?
+- [ ] $d = 3$
+- [ ] $d = 541$
+- [x] $d = 667$
+- [ ] $d = 87$
+- [ ] $d = 17$
+
+> **Explain:** In RSA trapdoor permutation: $pk = (n, e)$ where $e \cdot d = 1 \text{ (mod } \phi(n))$
+> - We have $n = 1255 = 5 \times 251 \rightarrow \phi(n) = (5 - 1) \times (251 - 1) = 1000$
+> - Therefore $3 \cdot d = 1 \text{ (mod } 1000) \rightarrow d = 667$
+
+### Problem 15.
+Suppose Alice and Bob run the Diffie-Hellman protocol in cyclic group $\mathbb{G} = \mathbb{Z}^*_{101}$ with generator $g = 7$. What is the Diffie-Hellman secret $s = g^{ab} \in \mathbb{G}$ if Alice uses $a = 3$ and Bob uses $b = 67$? (again, you do not need a calculator)
+- [ ] $s = 1$
+- [ ] $s = -1$
+- [x] $s = 7$
+- [ ] $s = 15$
+- [ ] $s = 49$
+
+> **Explain:** In Eulers's theorem: $\forall x \in \mathbb{Z}_N^*: x^{\phi(N)} = 1 \text{ in } \mathbb{Z}_N$
+> - Since 101 is a prime $\rightarrow \phi(101) = 101 - 1 = 100$
+> - Therefore $7^{100} = 1 \text{ in } \mathbb{Z}_{101} \rightarrow (7^{100})^2 \times 7 = 7 \text{ in } \mathbb{Z}_{101} \rightarrow 7^{3 \times 67} = 7 \text{ in } \mathbb{Z}_{101}$
+
+### Problem 16.
+Let $\mathbb{G}$ be a finite cyclic group (e.g. $\mathbb{G} = \mathbb{Z}^*_p$) with generator $g$. Suppose the Diffie-Hellman function $DH_g(g^x, g^y) = g^{xy}$ is difficult to compute in $\mathbb{G}$. Consider the following related functions: $$f_1(g^x, g^y) = g^{xy + 3x}; f_2(g^x, g^y) = g^{(x + 2)(y - 3)}; f_3(g^x, g^y) = g^{x + 2y};$$ Which of these functions must also be difficult to compute?
+Hint: as usual, identify the functions for wich the contra-positive holds: if $f(\cdot, \cdot)$ were easy to compute then so would $DH_g(\cdot, \cdot)$.
+- [x] $f_1$ and $f_2$ but not $f_3$.
+- [ ] $f_2$ and $f_3$ but not $f_1$.
+- [ ] $f_3$ and $f_1$ but not $f_2$.
+- [ ] all three are hard to compute.
+- [ ] $f_2$ but not $f_1$ or $f_3$.
+
+### Problem 17.
+Let $(Gen, E, D)$ be a semantically secure public key encryption system. Can algorithm $E$ be deterministic?
+- [ ] Yes, for example, the RSA trapdoor function is deterministic.
+- [ ] Some semantically secure public key encryption schemes are deterministic, while others are not.
+- [ ] No, but chosen-ciphertext secure public key encryption can be deterministic.
+- [ ] No, semantically secure public key encryption must be randomized. 
