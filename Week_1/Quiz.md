@@ -18,10 +18,13 @@ Data compression is often used in data storage and transmission. Suppose you wan
 Let $G: {0, 1}^s \rightarrow {0, 1}^n$ be a secure PRG. Which of the following is a secure PRG (there is more than one correct answer):
 
 - [ ] $G'(k) = G(0)$
-- [x] $G'(k) = G(k) || 0$
+> **Explain:** A distinguisher will output not random whenever the same output $G(0)$ is shown after 2 generations.
+- [ ] $G'(k) = G(k) || 0$
+> **Explain:** A distinguisher will output not random whenever the last bit of its input is 0.
 - [x] $G'(k) = G(k \oplus 1^s)$
 - [x] $G'(k) = G(k) \oplus 1^n$
-- [x] $G'(k) = G(k) || G(k)$
+- [ ] $G'(k) = G(k) || G(k)$
+> **Explain:** A distinguisher will output not random whenever the first n bits are equal to the last n bits.
 - [x] $G'(k) = G(k)[0, ..., n - 2]$ (i.e., $G'(k)$ drops the last bit of $G(k)$)
 
 ### Q3.
@@ -38,7 +41,7 @@ Note: Please enter the advantage as a decimal between 0 and 1 with a leading 0. 
 > **Explain:** We can prove that
 >
 > - $Pr(A(G'(k_1, k_2)) = 1) = \frac{1}{4}$
->   because $A(G'(k_1, k_2))$ ouputs $1$ when $LSB(G(k_1) \land G(k_2)) = 1 \rightarrow LSB(G(k_1) = LSB(G(k_2) = 1$ (there is only 1 in 4 combination of $LSB(G(k_1), LSB(G(k_2)$)
+>   because $A(G'(k_1, k_2))$ ouputs $1$ when $LSB(G(k_1) \land G(k_2)) = 1 \rightarrow LSB(G(k_1)) = LSB(G(k_2)) = 1$ (there is only 1 in 4 combination of $LSB(G(k_1)), LSB(G(k_2))$)
 > - $Pr(A(G(k)) = 1) = 1 - \frac{1}{2} = \frac{1}{2}$ (denote from the task)
 >
 > $\rightarrow Adv_{PRG}[A, G'] = |Pr(A(G'(k_1, k_2)) = 1) - Pr(A(G(k)) = 1)| = |\frac{1}{4} - \frac{1}{2}| = 0.25$
@@ -65,14 +68,13 @@ How should the bank assign pieces so that any two pieces enable decryption using
 
 ### Q5.
 
-Let $M = C = K = {0, 1, 2, ..., 255}$ and consider the following cipher defined over $(K, M, C): E(k, m) = m + k (mod 256); D(k, c) = c - k (mod 256)$.
-Does this cipher have perfect secrecy?
+Let $M = C = K = {0, 1, 2, ..., 255}$ and consider the following cipher defined over $$(K, M, C): E(k, m) = m + k \text{ (mod 256); } D(k, c) = c - k \text{ (mod 256); }$$ Does this cipher have perfect secrecy?
 
 - [ ] No, only the One Time Pad has perfect secrecy.
 - [x] Yes.
 - [ ] No, there is a simple attack on this cipher.
 
-> **Explain:** As with OTP, there is exactly one key mapping a given message m to a ciphertext c
+> **Explain:** We have $c = m + k$ mod $256 \rightarrow k = c - m$ mod $256$ which is exactly one key mapping a given message m to a ciphertext c just like with OTP, which has perfect secrecy. 
 
 ### Q6.
 
@@ -86,7 +88,6 @@ Let $(E, D)$ be a (one-time) semantically secure cipher where the message and ci
 - [x] $E'((k, k'), m) = E(k, m) || E(k', m)$
 
 > **Explain:**
->
 > - (1) expose m's content
 > - (3) expose k
 > - (5) key is not changed $\rightarrow$ not (one-time) semantically secure
@@ -119,9 +120,10 @@ As shown below, consider a tree with $n=16$ leaves. Suppose the leaf node labele
 > **Explain:** Since DVD 25's key is exposed $\rightarrow$ all keys on the path to DVD is exposed $(k_0, k_2, k_5, k_{12}, k_{25})$
 > So for every other DVDs to successfully decrypt the key $k$ they must not use those keys. For DVD:
 >
-> - $(1,3,4,7,8,9,10,15 \rightarrow 22)$ use key 1
-> - $(11,23,24)$ use key 11
-> - $(6,13,14,27 \rightarrow 30)$ use key 6
+> - $(15 \rightarrow 22)$ use key 1
+> - $(23,24)$ use key 11
+> - $(27 \rightarrow 30)$ use key 6
+> - $26$ use key 26
 
 ### Q9.
 

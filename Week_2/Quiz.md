@@ -38,10 +38,8 @@ Suppose that using commodity hardware it is possible to build a computer for abo
 - [ ] More than a month but less than a year
 
 > **Explain:** The answer is about 540 billion years.
->
 > - #machines = $\frac{4 \times 10^{12}}{200} = 2 \times 10^{10}$
 > - #keys processed per sec = $10^9 \times (2 \times 10^{10}) = 2 \times 10^{19}$
->
 > Worst case: needs to brute force all $2^{128}$ possible combination of keys
 > $\rightarrow$ #seconds = $\frac{2^{128}}{2 \times 10^{19}} = 1.7 \times 10^{19} \approx 540 \times 10^9$ years.
 
@@ -68,7 +66,7 @@ Which of the following is a secure PRF (there is more than one correct answer):
   > **Explain:** Cannot distinguish F' from a truly random generator
 - [x] $F'(k, x) = F(k, x \oplus 1^n)$
   > **Explain:** Cannot distinguish F' from a truly random generator
-- [x] $F'((k_1, k_2, x) = F(k_1, x) || F(k_2, x)$
+- [x] $F'((k_1, k_2, x)) = F(k_1, x) || F(k_2, x)$
   > **Explain:** Cannot distinguish F' from a truly random genrator
 
 ### Q4.
@@ -90,12 +88,11 @@ Can you say which is the output of the PRP? (Note that since you are able to dis
       On input $1^{32}0^{32}$ the output is "87a40cfa 8dd39154"
 - [ ] On input $0^{64}$ the output is "2d1cfa42 c0b1d266"
       On input $1^{32}0^{32}$ the output is "eea6e3dd b2146dd0"
-  > **Explain:** (_Code:_ [TwoRoundFeistel.py](https://github.com/pucagit/Cryptography-I/blob/main/Week%202/TwoRoungFeistel.py)) From the figure we can easily prove that $L_2 = L_0 \oplus F(k_1, R_0)$ so with these 2 inputs:
-  >
-  > - $0^{64} \rightarrow L_2 = F(k_1, 0^{32})$
-  > - $1^{32}0^{32} \rightarrow L'_2 = 1^{64} \oplus F(k_1, 0^{32})$
-  >
-  > Then $L_2 \oplus L'_2 = 1^{64}$
+
+> **Explain:** (_Code:_ [TwoRoundFeistel.py](https://github.com/pucagit/Cryptography-I/blob/main/Week%202/TwoRoungFeistel.py)) From the figure we can easily prove that $L_2 = L_0 \oplus F(k_1, R_0)$ so with these 2 inputs:
+> - $0^{64} \rightarrow L_2 = F(k_1, 0^{32})$
+> - $1^{32}0^{32} \rightarrow L'_2 = 1^{64} \oplus F(k_1, 0^{32})$
+> Then $L_2 \oplus L'_2 = 1^{64}$
 
 ### Q5.
 
@@ -110,10 +107,10 @@ What relation holds between $c_0, c_1, c'_0$? Note that this relation lets the a
 - [ ] $c_1 = c'_0$
 - [ ] $c_0 = c_1 \oplus c'_0$
 - [x] $c'_0 = c_0 \oplus 1^l$
-  > **Explain:**: From the definition of CBC with an encrypted nonce we can see that:
-  >
-  > - $c_1 = E(k, c_0)$
-  > - $c'_0 = E(k, c_0 \oplus c_1 \oplus E(k, c_0)) = E(k, c_0 \oplus c_1 \oplus c_1) = E(k, c_0) = c_1$
+
+> **Explain:**: From the definition of CBC with an encrypted nonce we can see that:
+> - $c_1 = E(k, c_0)$
+> - $c'_0 = E(k, c_0 \oplus c_1 \oplus E(k, c_0)) = E(k, c_0 \oplus c_1 \oplus c_1) = E(k, c_0) = c_1$
 
 ### Q6.
 
@@ -125,7 +122,8 @@ Once Bob decrypts the received ciphertext, how many plaintext blocks will be cor
 - [x] $2$
 - [ ] $0$
 - [ ] $l$
-  > **Explain:** In the CBC **decryption** circuit, each ciphertet blocks affects only the current plaintext block and the next.
+
+> **Explain:** In the CBC **decryption** circuit, each ciphertet blocks affects only the current plaintext block and the next.
 
 ### Q7.
 
@@ -137,7 +135,8 @@ Once Bob decrypts the received ciphertext, how many plaintext blocks will be cor
 - [ ] $l/2$
 - [x] $1$
 - [ ] $3$
-  > **Explain:** In the CBC counter mode **decryption** circuit, each ciphertet blocks affects only the current plaintext block.
+
+> **Explain:** In the CBC counter mode **decryption** circuit, each ciphertet blocks affects only the current plaintext block.
 
 ### Q8.
 
@@ -148,7 +147,8 @@ Suppose an attacker intercepts a packet where he knows that the packet payload i
 - [ ] "The most direct computation would be for the enemy to try all 2^r possible keys, one by one."
 - [ ] "We see immediately that one needs little information to begin to break down the process."
 - [ ] "To consider the resistance of the enciphering process to being broken we should assume that at the same times the enemy knows everything but the key being used and to break it needs only discover the key from this information."
-  > **Explain:** (_Code:_ [GuessPayload.py](https://github.com/pucagit/Cryptography-I/blob/main/Week%202/GuessPayload.py)) The length of the string is 106 bytes, which after padding becomes 112 bytes, and after prepending the IV becomes 128 bytes.
+
+> **Explain:** (_Code:_ [GuessPayload.py](https://github.com/pucagit/Cryptography-I/blob/main/Week%202/GuessPayload.py)) The length of the string is 106 bytes, which after padding becomes 112 bytes, and after prepending the IV becomes 128 bytes.
 
 ### Q9.
 
@@ -169,10 +169,8 @@ What is the value of $F(k, 1101)$? Note that since you are able to predict the f
 `Answer: 1111`
 
 > **Explain:** From the given arguments we see that:
->
 > - $F(k, 0110) = 0011 = k[0] \oplus k[2] \oplus k[3]$ _(1)_
 > - $F(k, 0101) = 1010 = k[0] \oplus k[2] \oplus k[4]$ _(2)_
-> - $F(k, 1110) = 0110 = k[0] \oplus k[1] \oplus k[2] \oplus k[3]$ _(3)_
->
+> - $F(k, 1110) = 0110 = k[0] \oplus k[1] \oplus k[2] \oplus k[3]$ _(3)_s
 > Let $(1) \oplus (2) \equiv k[3] \oplus k[4] = 1001$ _(4)_
 > Then $F(k, 1101) = k[0] \oplus k[1] \oplus k[2] \oplus k[4] = (3) \oplus (4) = 1111$

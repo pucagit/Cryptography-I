@@ -6,7 +6,7 @@
 
 Suppose a MAC system $(S, V)$ is used to protect files in a file system by appending a MAC tag to each file. The MAC signing algorith S is applied to the file contents and nothing else. What tampering attacks are not prevented by this system?
 
-- [x] Changing the las modification time of a file.
+- [x] Changing the last modification time of a file.
 - [ ] Replacing the contents of a file with the concatenation of two files on the file system.
 - [ ] Changing the first byte of the file contents.
 - [ ] Replacing the tag and contents of one file with the tag and contents of a file from another computer proctected by the sam MAC system, but a different key
@@ -56,7 +56,10 @@ Recall that the ECBC-MAC uses a fixed IV (in the lecture we simply set the IV to
 - [ ] The tag $(r \oplus t, m)$ is a valid tag for the 1-block message $m \oplus 0^n$
 - [ ] The tag $(m \oplus t, t)$ is a valid tag for the 1-block message $m \oplus 0^n$
 
-> **Explain:** The CBC chain initiated with the IV $r \oplus m$ and applied to the messagee $0^n$ will produce exactly the same output as the CBC chain initiated with the IV $r$ and applied to the message $m$. Therefore, the tag $(r \oplus 1^n, t)$ is a valid existential forgery for the message $m \oplus 1^n$.
+> **Explain:** 
+> - Base on ECBC definition: $ECBC_r(k, m) = F(k, F(k', r \oplus m))$
+> - Since the $IV$ is chosen randomly, we can forge $r' = r \oplus 1^n$ and $m' = m \oplus 1^n$
+> - Therefore $ECBC_{r'}(k, m') = F(k, F(k', r' \oplus m')) = F(k, F(k', r \oplus 1^n \oplus m \oplus 1^n)) = F(k, F(k', r \oplus m)) = t \rightarrow$ is a valid tag.
 
 ### Q4.
 
@@ -68,7 +71,8 @@ How should Alice assign keys to the 6 users so that no single user can forge pac
 - [ ] $S_1 = \{k_1, k_2\}, S_2 = \{k_1\}, S_3 = \{k_1, k_4\}, S_4 = \{k_2, k_3\}, S_5 = \{k_2, k_4\}, S_6 = \{k_3, k_4\}$
 - [ ] $S_1 = \{k_1, k_2\}, S_2 = \{k_2, k_3\}, S_3 = \{k_3, k_4\}, S_4 = \{k_1, k_3\}, S_5 = \{k_1, k_2\}, S_6 = \{k_1, k_4\}$
 - [x] $S_1 = \{k_2, k_4\}, S_2 = \{k_2, k_3\}, S_3 = \{k_3, k_4\}, S_4 = \{k_1, k_3\}, S_5 = \{k_1, k_2\}, S_6 = \{k_1, k_4\}$
-  > **Explain:** Every user can only generate tags with the 2 keys he has. Since no set $S_i$ is contained in another set $S_j$, no user $i$ can fool a user $j$ into accepting a message sent by $i$.
+
+> **Explain:** Every user can only generate tags with the 2 keys he has. Since no set $S_i$ is contained in another set $S_j$, no user $i$ can fool a user $j$ into accepting a message sent by $i$.
 
 ### Q5.
 
@@ -79,7 +83,8 @@ How many calls to AES would it take to compute the tag for $m'$ from the tag for
 - [ ] $3$
 - [ ] $2$
 - [x] $4$
-  > **Explain:**: You would decrypt the final CBC MAC encryption step done using $k_2$, then decrypt the last CBC MAC encryption step done using $k_1$, flip the last bit of the result, and re-apply the 2 encryptions.
+
+> **Explain:**: You would decrypt the final CBC MAC encryption step done using $k_2$, then decrypt the last CBC MAC encryption step done using $k_1$, flip the last bit of the result, and re-apply the 2 encryptions.
 
 ### Q6.
 
@@ -87,14 +92,18 @@ Let $H: M \rightarrow T$ be a collision resistant hash function. Which of the fo
 
 - [ ] $H'(m) = H(m) \oplus H(m \oplus 1^{|m|})$
       (where $m \oplus 1^{|m|}$ is the complement of $m$)
+  > **Explain:** $H'(000) = H'(111) \rightarrow$ a collision.
 - [x] $H'(m) = H(H(m))$
-  > **Explain:** a collision finder for $H'$ gives a collision finder for $H$.
 - [ ] $H'(m) = H(0)$
+  > **Explain:** Any message $m$ will have the same MAC $\rightarrow$ a collision.
 - [ ] $H'(m) = H(m) \oplus H(m)$
+  > **Explain:** Any message $m$ with the same length will have the same MAC $\rightarrow$ a collision.
 - [x] $H'(m) = H(m) || H(m)$
-  > **Explain:** a collision finder for $H'$ gives a collision finder for $H$.
 - [ ] $H'(m) = H(m)[0, ..., 31]$
       (i.e. output the first 32 bits of the hash)
+  > **Explain:** Might exist 2 message $m$ such that they have different MAC that only differs at the last bit (which is still collision resistant in $H(m)$) but won't be collision resistant anymore if dropping the last bit in $H'(m)$.
+- [ ] $H'(m) = H(m[0, ..., |m| -2])$
+  > **Explain:** $H(00) = H(11)$ $\rightarrow$ a collision.
 - [x] $H'(m) = H(H(H(m)))$
   > **Explain:** a collision finder for $H'$ gives a collision finder for $H$.
 
@@ -102,13 +111,14 @@ Let $H: M \rightarrow T$ be a collision resistant hash function. Which of the fo
 
 Suppose $H_1$ and $H_2$ are collision resistant hash functions mapping inputs in a set $M$ to $\{0, 1\}^{256}$. Our goal is to show that the function $H_2(H_1(m))$ is also collision resistant.
 We prove the contra-positive: suppose $H_2(H_1(\cdot))$ is not collision resistant, that is, we are given $x \neq y$ such that $H_2(H_1(x)) = H_2(H_1(y))$. We build a collision for either $H_1$ or for $H_2$. This will prove that if $H_1$ and $H_2$ are collision resistant then so is $H_2(H_1(\cdot))$.
-Which of th following must be true:
+Which of the following must be true:
 
 - [ ] Either $H_2(x), H_2(y)$ are a collision for $H_1$ or $x, y$ are a collision for $H_2$.
-- [ ] Either $x, y$ are a collision for $H_1$ or $H_1(x), H_1(y)$ are a collision for $H_2$.
+- [x] Either $x, y$ are a collision for $H_1$ or $H_1(x), H_1(y)$ are a collision for $H_2$.
 - [ ] Either $x, H_1(y)$ are a collision for $H_2$ or $H_2(x), y$ are a collision for $H_1$.
-- [x] Either $x, y$ are a collision for $H_2$ or $H_1(x), H_1(y)$ are a collision for $H_1$.
-  > **Explain:** If $H_2(H_1(x)) = H_2(H_1(y))$ then either $H_1(x) = H_1(y)$ and $x \neq y$, thereby giving us a collision on $H_1$. Or $H_1(x) \neq H_1(y)$ but $H_2(H_1(x)) = H_2(H_1(y))$ giving us a collision on $H_2$. Either way we obtain a collision on $H_1$ or $H_2$ as required.
+- [ ] Either $x, y$ are a collision for $H_2$ or $H_1(x), H_1(y)$ are a collision for $H_1$.
+
+> **Explain:** If $H_2(H_1(x)) = H_2(H_1(y))$ then either $H_1(x) = H_1(y)$ and $x \neq y$, thereby giving us a collision on $H_1$. Or $H_1(x) \neq H_1(y)$ but $H_2(H_1(x)) = H_2(H_1(y))$ giving us a collision on $H_2$. Either way we obtain a collision on $H_1$ or $H_2$ which is opposite from the given task.
 
 ### Q8.
 
@@ -151,4 +161,5 @@ How many random samples would it take until we obtain a three way collision, nam
 - [ ] $O(|T|^{1/2})$
 - [ ] $O(|T|)$
 - [ ] $O(|T|^{1/3})$
-  > **Explain:** An informal argument for this is as follows: suppose we collect $n$ random samples. The number of triples among the $n$ samples is $n$ choose 3 which is $O(n^3)$. For a particular triple $x, y, z$ to be a 3-way collision we need $H(x) = H(y)$ and $H(x) = H(z)$. Since each of these 2 events happens with probability $1/|T|$ (assuming $H$ behaves like a random function) the probability that a particular triple is a 3-way collision is $O(1/|T|^2)$. Using the union bound, the probability that some triple is a 3-way collision is $O(n^3/|T|^2)$ and since we want this probability to be close to $1$, the bound on $n$ follows.
+
+> **Explain:** An informal argument for this is as follows: suppose we collect $n$ random samples. The number of triples among the $n$ samples is $n$ choose 3 which is $O(n^3)$. For a particular triple $x, y, z$ to be a 3-way collision we need $H(x) = H(y)$ and $H(x) = H(z)$. Since each of these 2 events happens with probability $1/|T|$ (assuming $H$ behaves like a random function) the probability that a particular triple is a 3-way collision is $O(1/|T|^2)$. Using the union bound, the probability that some triple is a 3-way collision is $O(n^3/|T|^2)$ and since we want this probability to be close to $1$, the bound on $n$ follows. Probability of a k-way collision in a space of size $T$ typically scales as $T^{\frac{k-1}{k}}$
