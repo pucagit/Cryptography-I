@@ -4,8 +4,8 @@
 
 const {
   /* The following functions are all of the cryptographic
-  primatives that you should need for this assignment.
-  See lib.js for details on usage. */
+    primatives that you should need for this assignment.
+    See lib.js for details on usage. */
   bufferToString,
   genRandomSalt,
   generateEG, // async
@@ -35,6 +35,8 @@ class MessengerClient {
     this.conns = {}; // data for each active connection
     this.certs = {}; // certificates of other users
     this.EGKeyPair = {}; // keypair from generateCertificate
+    this.messageKeys = {}; // Lưu trữ message keys cho mỗi người dùng
+    this.skippedMK = {}; // Lưu trữ các message key bị bỏ qua
   }
 
   /**
@@ -165,25 +167,29 @@ class MessengerClient {
    * Return Type: string
    */
   async receiveMessage(name, [header, ciphertext]) {
-    // if A has not previously communicated with B, setup the session by generating necessary double ratchet keys
+    if (!(name in this.messageKeys)) {
+      this.messageKeys[name] = new Map();
+      this.skippedMK[name] = new Map();
+    }
+
+    // Khởi tạo kết nối mới nếu chưa có
     if (!(name in this.conns)) {
       const sender_cert_pk = this.certs[name].pub_key;
       const raw_root_key = await computeDH(
         this.EGKeyPair.cert_sk,
         sender_cert_pk
       );
-
       const hkdf_input_key = await computeDH(
         this.EGKeyPair.cert_sk,
         header.pk_sender
-      ); // DH key from Alice and the sender
+      );
       const [root_key, chain_key] = await HKDF(
         hkdf_input_key,
         raw_root_key,
         "ratchet-salt"
       );
 
-      const fresh_pair = await generateEG(); // new key pair for the receiver
+      const fresh_pair = await generateEG();
       this.EGKeyPair[name] = {
         pub_key: fresh_pair.pub,
         sec_key: fresh_pair.sec,
@@ -192,28 +198,52 @@ class MessengerClient {
       const dh_result = await computeDH(
         this.EGKeyPair[name].sec_key,
         header.pk_sender
-      ); // DH key from new key and public key of the sender
-
+      );
       const [final_root_key, ck_s] = await HKDF(
         dh_result,
         root_key,
         "ratchet-salt"
       );
 
-      // save
-      this.conns[name] = { rk: final_root_key, ck_r: chain_key, ck_s: ck_s };
-      // create seen pks set
-      this.conns[name].seenPks = new Set(); // lưu lại các public key đã set
-    } else if (!this.conns[name].seenPks.has(header.pk_sender)) {
-      // apply a DH ratchet because the sender is different than the last sender!
-      // apply DH ratchet
+      this.conns[name] = {
+        rk: final_root_key,
+        ck_r: chain_key,
+        ck_s: ck_s,
+        seenPks: new Set([header.pk_sender]),
+        currentPK: header.pk_sender,
+        messageCounter: 0,
+      };
+    }
 
-      // DH with receiver's private key and sender's public key
+    // Kiểm tra message key đã lưu trước
+    for (let [savedPK, mkMap] of this.skippedMK[name].entries()) {
+      try {
+        const plaintext = await decryptWithGCM(
+          mkMap,
+          ciphertext,
+          header.receiverIV,
+          JSON.stringify(header)
+        );
+        this.skippedMK[name].delete(savedPK);
+        return bufferToString(plaintext);
+      } catch (error) {
+        continue;
+      }
+    }
+
+    // DH ratchet khi nhận được public key mới
+    if (!this.conns[name].seenPks.has(header.pk_sender)) {
+      // Lưu message key hiện tại trước khi ratchet
+      if (this.conns[name].ck_r) {
+        const currentMK = await HMACtoAESKey(this.conns[name].ck_r, "mk-str");
+        this.skippedMK[name].set(this.conns[name].currentPK, currentMK);
+      }
+
       const first_dh_output = await computeDH(
         this.EGKeyPair[name].sec_key,
         header.pk_sender
       );
-      let [rk_first, ck_r] = await HKDF(
+      const [rk_first, ck_r] = await HKDF(
         first_dh_output,
         this.conns[name].rk,
         "ratchet-salt"
@@ -234,23 +264,37 @@ class MessengerClient {
       this.conns[name].rk = rk;
       this.conns[name].ck_s = ck_s;
       this.conns[name].ck_r = ck_r;
+      this.conns[name].seenPks.add(header.pk_sender);
+      this.conns[name].currentPK = header.pk_sender;
+      this.conns[name].messageCounter = 0;
     }
 
-    // apply symmetric-key ratchet on receiving chain to get message key for the received message
-    const ck_r = await HMACtoHMACKey(this.conns[name].ck_r, "ck-str");
-    const mk = await HMACtoAESKey(this.conns[name].ck_r, "mk-str");
+    // Tạo và lưu trữ một loạt message keys
+    let mk;
+    let new_ck_r = this.conns[name].ck_r;
+    const maxSkip = 10; // Số lượng message keys tối đa để lưu trữ
 
-    // update ck_r and the public key of the last sender
-    this.conns[name].ck_r = ck_r;
-    this.conns[name].seenPks.add(header.pk_sender);
+    for (let i = 0; i <= maxSkip; i++) {
+      mk = await HMACtoAESKey(new_ck_r, "mk-str");
+      try {
+        const plaintext = await decryptWithGCM(
+          mk,
+          ciphertext,
+          header.receiverIV,
+          JSON.stringify(header)
+        );
+        this.conns[name].ck_r = await HMACtoHMACKey(new_ck_r, "ck-str");
+        this.conns[name].messageCounter = i;
+        return bufferToString(plaintext);
+      } catch (error) {
+        // Lưu message key và tiếp tục thử
+        this.skippedMK[name].set(`${header.pk_sender}-${i}`, mk);
+        new_ck_r = await HMACtoHMACKey(new_ck_r, "ck-str");
+      }
+    }
 
-    const plaintext = await decryptWithGCM(
-      mk,
-      ciphertext,
-      header.receiverIV,
-      JSON.stringify(header)
-    );
-    return bufferToString(plaintext);
+    // Nếu không thể giải mã sau khi thử tất cả các keys
+    throw new Error("Could not decrypt message");
   }
 }
 
