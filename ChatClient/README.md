@@ -1,7 +1,9 @@
-***Bài tập được hoàn thành với sự trợ giúp của ChatGPT và GitHub Copilot.***
+***Họ và tên: Nguyễn Đình Phúc***
+***MSSV: 20215629***
 # CS 255: Intro to Cryptography
 ### Báo Cáo Về Chương Trình Chat Bảo Mật trong Khóa Học Cryptography I
 
+***Bài tập được hoàn thành với sự trợ giúp của ChatGPT và GitHub Copilot.***
 #### Giới Thiệu
 Trong dự án này thuộc khóa học Cryptography I của Dan Boneh, chúng tôi đã triển khai một ứng dụng chat bảo mật với mã hóa đầu-cuối sử dụng thuật toán Double Ratchet. Thuật toán này, được sử dụng trong các ứng dụng nhắn tin bảo mật như Signal, đảm bảo tính bảo mật chuyển tiếp (forward secrecy) và khả năng khôi phục sau xâm nhập (break-in recovery). Ngoài ra, để mô phỏng tình huống giám sát của chính phủ, chúng tôi đã tích hợp một tính năng mã hóa khóa phiên bằng khóa công khai do chính phủ cấp, cho phép giải mã tin nhắn bởi chính phủ trong khi vẫn bảo vệ quyền riêng tư khỏi các bên không được phép.
 
