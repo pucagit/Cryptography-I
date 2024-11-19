@@ -1,3 +1,4 @@
+***Bài tập được hoàn thành với sự trợ giúp của ChatGPT và GitHub Copilot.***
 # CS 255: Intro to Cryptography
 ### Báo Cáo Về Chương Trình Chat Bảo Mật trong Khóa Học Cryptography I
 
