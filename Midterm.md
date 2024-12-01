@@ -137,11 +137,11 @@ If you need to build an application that needs to encrypt multiple messages usin
 
 ### Problem 12.
 Let $(E, D)$ be a symmetric encryption system with message space $M$ (think of $M$ as only consisting for short messages, say $32$ bytes). Define the following MAC $(S, V)$ for messages in $M$:
-\( S(k, m) := E(k, m); \quad V(k, m, t) := 
+$ S(k, m) := E(k, m); \quad V(k, m, t) := 
 \begin{cases} 
 1 & \text{if } D(k, t) = m \\ 
 0 & \text{otherwise}
-\end{cases} \)
+\end{cases}$
 What is the property that the encryption system $(E, D)$ needs to satisfy for this MAC system to be secure?
 - [x] Ciphertext integrity
 - [ ] Perfect secrecy
@@ -203,4 +203,64 @@ Let $(Gen, E, D)$ be a semantically secure public key encryption system. Can alg
 - [ ] Yes, for example, the RSA trapdoor function is deterministic.
 - [ ] Some semantically secure public key encryption schemes are deterministic, while others are not.
 - [ ] No, but chosen-ciphertext secure public key encryption can be deterministic.
-- [ ] No, semantically secure public key encryption must be randomized. 
+- [x] No, semantically secure public key encryption must be randomized. 
+
+> **Explain:** Otherwise the attacker can easily break semantic security
+
+### Problem 18.
+Suppose Alice and Bob live in a country with 50 states.  Alice is currently in state $a \in \{1,...,50\}$ and Bob is currently in state $b \in \{1,...,50\}$.  They can communicate with one another and Alice wants to test if she is currently in the same state as Bob. If they are in the same state, Alice should learn that fact and otherwise she should learn nothing else about Bob's location.  Bob should learn nothing about Alice's location. 
+They agree on the following scheme:
+- They fix a group $G$ of prime $p$ and generator $g$ of $G$
+- Alice chooses random $x$ and $y$ in $\mathbb{Z}_p$ and sends to Bob $(A_0, A_1, A_2) = (g^x, g^y, g^{xy + a})$
+- Bob choose random $r$ and $s$ in $\mathbb{Z}_p$ and sends back to Alice $(B_1, B_2) = (A^r_1g^s, (A_2/g^b)^rA_0^s)$
+What should Alice do now to test if they are in the same state (i.e. to test if $a = b$)?
+Note that Bob learns nothing from this protocol because he simply recieved a plain ElGamal encryption of $g^a$ under the public key $g^x$. Once can show that if $a \neq b$ then Alice learns nothing else from this protocol because she receives the encryption of a random vvalue.
+- [ ] Alice test if $a = b$ by checking if $B_1^xB_2 = 1$
+- [x] Alice test if $a = b$ by checking if $B_2/B_1^x = 1$
+- [ ] Alice test if $a = b$ by checking if $B_2B_1^x = 1$
+- [ ] Alice test if $a = b$ by checking if $B_2^xB_1 = 1$
+
+> **Explain:** The pair $(B_1, B_2)$ from Bob satisfies $B_1 = g^{yr+s}$ and $B_2 = (g^x)^{yr+s}g^{r(a-b)}$. Therefore, it is a plain ElGamal encryption of the plaintext $g^{r(a-b)}$ under the public key $(g, g^x)$. This plaintext happens to be $1$ when $a = b$. The term $B_2/B_1^x$ computes the ElGamal plaintext and compares it to $1$.
+> Note that when $a \neq b$ the $r(a - b)$ term ensures that Alice learns nothing about $b$ other than the fact that $a \neq b$.
+> Indeed, when $a \neq b$ then $r(a - b)$ is a uniform non-zero element of $\mathbb{Z}_p$. 
+
+### Problem 19.
+Recall that password systems make it harder to mount an offline dictionary attack by using a slow hash function. This forces the attacker to spend more effort to evaluate the hash function at many inputs. One way to construct a slow hash function is to start from a standard hash function, such as SHA256, and iterate it many times. That is,
+$$H_n(x) = SHA256(SHA256(\cdot \cdot \cdot SHA256(x) \cdot \cdot \cdot)) \text{     [iterated n times]}$$The number of iteration $n$ is set so that the running time of $H_n(\cdot)$ is about 0.1 seconds for the real identification server who is verifying the password. In class we saw a slow a hash function called PBKDF2 that builds upon this basic iteration method.
+In this question we show that iteration does not always slow down the time to evaluate a function.
+Consider the function: $H: \mathbb{Z} \rightarrow \mathbb{Z}$ defined by 
+$$H_{p,a,b}(x) = ax + b \text{ mod } p$$ where $p$ is a prime and $a, b$ are some fixed integers in $\mathbb{Z}$ that are chosen at random when the function is first defined. The attacker knows $p,a,b$. This function, is not one-way and should not be used to hash passwords, but is useful for making the point of this excercise.
+Let $H^{(n)}$ be the results of iterating $H_{p,a,b}$ a total of $n$ times (say $n = 1000$). The attacker is given $p,a,b$ and its goal is to write down the fastest program for evaluating $H^{(n)}(x)$ for $x \in \mathbb{Z}_p$. How fast can this program be?
+- [ ] Evaluating $H^{(n)}(x)$ can be done as fast as evaluating $H_{(p,a,b)}(x)$.
+- [ ] Evaluating $H^{(n)}(x)$ takes twice as long as evaluating $H_{(p,a,b)}(x)$.
+- [ ] Evaluating $H^{(n)}(x)$ takes time $O(n)$.
+- [ ] Evaluating $H^{(n)}(x)$ takes time $O(logn)$.
+
+---
+
+### Problem 20
+
+In class, we saw a one-sided AKE (authenticated key exchange protocol) with forward-secrecy and a two-sided AKE without forward-secrecy. Let’s try to construct the best of both worlds: a two-sided AKE with forward-secrecy.
+
+Consider the following two-sided AKE with forward-secrecy between Alice and Bank: They each have a certificate for a signing key, and we denote by $S_{\text{alice}}(\text{data})$ and $S_{\text{bank}}(\text{data})$ their respective signatures on 'data'. They fix a group $G$ of order $q$ and generator $g \in G$. Alice chooses a random $a$, and Bank chooses a random $b$, both in $\mathbb{Z}_q$. They exchange the following messages:
+1. **Alice → Bank**: 
+$$g^a, \text{cert}_{\text{alice}}, S_{\text{alice}}(g^a)$$
+- Key derivation: 
+$$k \gets H(g^{ab}, \text{"alice"})$$
+2. **Bank → Alice**: 
+$$g^b, \text{cert}_{\text{bank}}, S_{\text{bank}}(g^a, g^b)$$
+- Key derivation: 
+$$k \gets H(g^{ab}, \text{id from cert}_{\text{alice}})$$
+
+Both sides compute the same key $k$ using a hash function $H: G \times ID \to K$, and each side deletes its secret $a$ or $b$.
+If all the certificates and signatures verify correctly, then Alice thinks she is speaking with Bank, and Bank thinks it is speaking with Alice. The protocol provides forward-secrecy because a compromise of the server or the client does not compromise past sessions.
+Since the Diffie-Hellman messages in this protocol are signed by the participants, one might expect that the protocol is secure against a person-in-the-middle attack. Unfortunately, that is incorrect: the protocol is vulnerable to an identity misbinding attack.
+Which of the following actions by a person-in-the-middle leads to identity misbinding?
+- [ ] The attacker blocks Alice's message and replaces it with the following message to Bank:
+Evil → Bank:   $g^{a} \text{, } cert_{evil} \text{, } S_{evil}(g^a)$ 
+- [ ] The attacker sets $a' \leftarrow \mathbb{Z}_q$, blocks Alice's message, and replaces it with the following message to Bank:
+Evil → Bank:   $g^{(a')} \text{, } cert_{evil} \text{, } S_{evil}(g^{(a')})$ 
+- [ ] The attacker blocks Bank's message and replaces it with the following message to Alice:
+Evil → Alice:   $g^{b} \text{, } cert_{evil} \text{, } S_{evil}(g^a, g^b)$ 
+- [ ] The attacker chooses $b' \leftarrow \mathbb{Z}_q$, blocks Bank's message, and replaces it with the following message to Alice:
+Evil → Alice:   $g^{(b')} \text{, } cert_{evil} \text{, } S_{evil}(g^a, g^{(b')})$ 
