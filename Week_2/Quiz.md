@@ -47,7 +47,7 @@ Suppose that using commodity hardware it is possible to build a computer for abo
 
 ### Q3.
 
-Let $F: {0, 1}^n \times {0, 1}^n \rightarrow {0, 1}^n$ be a secure PRF (i.e. a PRF where the key space, input space, and output space are all ${0, 1}^n$) and say $n = 128$.
+Let $F: \{0, 1\}^n \times \{0, 1\}^n \rightarrow \{0, 1\}^n$ be a secure PRF (i.e. a PRF where the key space, input space, and output space are all $\{0, 1\}^n$) and say $n = 128$.
 Which of the following is a secure PRF (there is more than one correct answer):
 
 - [ ] $F'(k, x) = k \oplus x$
@@ -72,13 +72,13 @@ Which of the following is a secure PRF (there is more than one correct answer):
 ### Q4.
 
 Recall that the Luby-Rackoff theorem discussed in [The Data Encryption Standard lecture](https://www.coursera.org/learn/crypto/lecture/TzBaf/the-data-encryption-standard) states that applying a three round Feistel network to a secure PRF gives a secure block cipher. Let's see what goes wrong if we only use a two round Feistel.
-Let $F: K \times {0, 1}^{32} \rightarrow {0, 1}^{32}$ be a secure PRF.
+Let $F: K \times \{0, 1\}^{32} \rightarrow \{0, 1\}^{32}$ be a secure PRF.
 Recall that a 2-round Feistl defines the following PRP
-$F_2: K^2 \times {0, 1}^{64} \rightarrow {0, 1}^{64}$\
+$F_2: K^2 \times \{0, 1\}^{64} \rightarrow \{0, 1\}^{64}$\
 ![2-round_Feistel](https://hackmd.io/_uploads/H1vL-K2lkx.png)
-Here $R_0$ is the right 32 bits of the 64-bit input and $L_0$ is the left 32 bits. One of the following lines is the output of this PRP $F_2$ using a random key, while the other three are the output of a truly random permutation $f: {0, 1}^{64} \rightarrow {0, 1}^{64}$. All 64-bit outputs are encoded as 16 hex characters.
-Can you say which is the output of the PRP? (Note that since you are able to distinguish the output of $F_2$ from random, $F_2$ is not a secure block cipher, which is what we wantedto show.
-**Hint:** First argue that there is a detectable pattern in th XOR of $F(\cdot, 0^{64})$ and $F(\cdot, 1^{32}0^{32})$. Then try to detect this pattern in the given outputs.
+Here $R_0$ is the right 32 bits of the 64-bit input and $L_0$ is the left 32 bits. One of the following lines is the output of this PRP $F_2$ using a random key, while the other three are the output of a truly random permutation $f: \{0, 1\}^{64} \rightarrow \{0, 1\}^{64}$. All 64-bit outputs are encoded as 16 hex characters.
+Can you say which is the output of the PRP? (Note that since you are able to distinguish the output of $F_2$ from random, $F_2$ is not a secure block cipher, which is what we wanted to show).
+**Hint:** First argue that there is a detectable pattern in the XOR of $F(\cdot, 0^{64})$ and $F(\cdot, 1^{32}0^{32})$. Then try to detect this pattern in the given outputs.
 
 - [x] On input $0^{64}$ the output is "9f970f4e 932330e4"
       On input $1^{32}0^{32}$ the output is "6068f0b1 b645c008"
@@ -98,15 +98,15 @@ Can you say which is the output of the PRP? (Note that since you are able to dis
 
 Nonce-based CBC. Recall that in [Lecture 4.4](https://www.coursera.org/learn/crypto/lecture/wlIX8/modes-of-operation-many-time-key-cbc) we said that if one wants to use CBC encryption with a non-random unique nonce then the nonce must first be encrypted with an independent PRP key and the result then used as the CBC IV.
 Let's see what goes wrong if one encrypts the nonce with the same PRP key as the key used for CBC encryption.
-Let $F: K \times {0, 1}^l \rightarrow {0, 1}^l$ be a secure PRP with, say, $l = 128$. Let $n$ be a nonce and suppose one encrypts a message $m$ by first computing $IV = F(k, n)$ and then using this IV in CBC encryption using $F(k, \cdot)$. Note that the same key $k$ is used for computing the IV and for CBC encryption. We show that the resulting system is not noce-based CPA secure.
+Let $F: K \times \{0, 1\}^l \rightarrow \{0, 1\}^l$ be a secure PRP with, say, $l = 128$. Let $n$ be a nonce and suppose one encrypts a message $m$ by first computing $IV = F(k, n)$ and then using this IV in CBC encryption using $F(k, \cdot)$. Note that the same key $k$ is used for computing the IV and for CBC encryption. We show that the resulting system is not nonce-based CPA secure.
 The attacker begins by asking for the encryption of the two block message $m = (0^l, 0^l)$ with nonce $n = 0^l$. It receives back a two block ciphertext $(c_0, c_1)$. Observe that by definition of CBC we know that $c_1 = F(k, c_0)$.
 Next, the attacker asks for the encryption of the one block message $m_1 = c_0 \oplus c_1$ with nonce $n = c_0$. It receives back a one block ciphertext $c'_0$.
 What relation holds between $c_0, c_1, c'_0$? Note that this relation lets the adversary win the nonce-based CPA game with advantage 1.
 
 - [ ] $c_1 = c_0 \oplus c'_0$
-- [ ] $c_1 = c'_0$
+- [x] $c_1 = c'_0$
 - [ ] $c_0 = c_1 \oplus c'_0$
-- [x] $c'_0 = c_0 \oplus 1^l$
+- [ ] $c'_0 = c_0 \oplus 1^l$
 
 > **Explain:**: From the definition of CBC with an encrypted nonce we can see that:
 > - $c_1 = E(k, c_0)$
@@ -114,7 +114,7 @@ What relation holds between $c_0, c_1, c'_0$? Note that this relation lets the a
 
 ### Q6.
 
-Let $m$ be a message consisting of $l$ AES blocks (say $l = 100$). Alice encrypts $m$ using CBC mode and transmits the resulting ciphertext to Bob. ue to a network error, ciphertext block number $l/2$ is corrupted during transmission. All other ciphertext blocks are transmitted and received correctly.
+Let $m$ be a message consisting of $l$ AES blocks (say $l = 100$). Alice encrypts $m$ using CBC mode and transmits the resulting ciphertext to Bob. Due to a network error, ciphertext block number $l/2$ is corrupted during transmission. All other ciphertext blocks are transmitted and received correctly.
 Once Bob decrypts the received ciphertext, how many plaintext blocks will be corrupted?
 
 - [ ] $3$
@@ -148,11 +148,11 @@ Suppose an attacker intercepts a packet where he knows that the packet payload i
 - [ ] "We see immediately that one needs little information to begin to break down the process."
 - [ ] "To consider the resistance of the enciphering process to being broken we should assume that at the same times the enemy knows everything but the key being used and to break it needs only discover the key from this information."
 
-> **Explain:** (_Code:_ [GuessPayload.py](https://github.com/pucagit/Cryptography-I/blob/main/Week%202/GuessPayload.py)) The length of the string is 106 bytes, which after padding becomes 112 bytes, and after prepending the IV becomes 128 bytes.
+> **Explain:** (_Code:_ [GuessPayload.py](https://github.com/pucagit/Cryptography-I/blob/main/Week_2/GuessPayload.py)) The length of the string is 106 bytes, which after padding becomes 112 bytes, and after prepending the IV becomes 128 bytes.
 
 ### Q9.
 
-Let $R := {0, 1}^4$ and consider the following PRF $F: R^5 \times R \rightarrow R$ defined as follows:
+Let $R := \{0, 1\}^4$ and consider the following PRF $F: R^5 \times R \rightarrow R$ defined as follows:
 $F(k, x) := 
 \left\{
     \begin{array}{ll}
@@ -171,6 +171,6 @@ What is the value of $F(k, 1101)$? Note that since you are able to predict the f
 > **Explain:** From the given arguments we see that:
 > - $F(k, 0110) = 0011 = k[0] \oplus k[2] \oplus k[3]$ _(1)_
 > - $F(k, 0101) = 1010 = k[0] \oplus k[2] \oplus k[4]$ _(2)_
-> - $F(k, 1110) = 0110 = k[0] \oplus k[1] \oplus k[2] \oplus k[3]$ _(3)_s
+> - $F(k, 1110) = 0110 = k[0] \oplus k[1] \oplus k[2] \oplus k[3]$ (3)
 > Let $(1) \oplus (2) \equiv k[3] \oplus k[4] = 1001$ _(4)_
 > Then $F(k, 1101) = k[0] \oplus k[1] \oplus k[2] \oplus k[4] = (3) \oplus (4) = 1111$

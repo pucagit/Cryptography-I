@@ -1,5 +1,42 @@
 # Midterm Practice Worksheet CS 255
 
+### Problem 0.
+
+We consider the ElGamal signature scheme. You are given Bob's private key $sk = d = (12)$ and the correspoding public key $pk = (p, g, g^d) = (29, 2, 7)$. Compute the ElGamal signature (r, s) for a message from Bob to Alice with message $m = 20$ and ephemeral key $k_E = 5$.
+
+> **Explain:**
+> We are given:
+> - $p = 29$ (a prime modulus),
+> - $g = 2$ (a generator),
+> - $g^d = 7$ (Bob's public key component, derived from $d$),
+> - $d = 12$ (Bob's private key),
+> - $m = 20$ (message to sign),
+> - $k_E = 5$ (ephemeral key, randomly chosen).
+> **Step 1: Compute $r$**
+> The first component of the signature, $r$, is computed as:
+> $$r = g^{k_E} \mod p$$
+> Substitute the values:
+> $$r = 2^5 \mod 29$$
+> $$r = 32 \mod 29 = 3$$
+> **Step 2: Compute $s$**
+> The second component of the signature, $s$, is computed as:
+> $$s = k_E^{-1}(m - d \cdot r) \mod (p - 1)$$
+> where $k_E^{-1}$ is the modular inverse of $k_E$ modulo $p - 1$.
+> - Compute $k_E^{-1} \mod (p - 1)$:
+>   Since $p = 29$, $p - 1 = 28$. We need $k_E = 5$ and find $k_E^{-1} \mod 28$. Using the extended Euclidean algorithm:
+>   $$  5 \cdot 17 \equiv 1 \mod 28$$
+>   Thus, $k_E^{-1} = 17$.
+> - Compute $s$:
+>  Substitute into the formula:
+>  $$  s = 17 \cdot (20 - 12 \cdot 3) \mod 28$$
+>  Simplify $20 - 12 \cdot 3 \mod 28$:
+>  $$  20 - 36 \equiv -16 \equiv 12 \mod 28$$
+>  So:
+>  $$  s = 17 \cdot 12 \mod 28$$
+>  Compute:
+>  $$  s = 204 \mod 28 = 8$$
+
+
 ### Problem 1.
 
 Let $(E, D)$ be a (one-time) semantically secure cipher with key space $K = \{0, 1\}^l$. A bank wishes to split a decryption key $k \in \{0, 1\}^l$ into two pieces $p_1$ and $p_2$ so that both are needed for decryption. The piece $p_1$ can be given to one executive and $p_2$ to another so that both must contribut their piecesfor decryption to proceed.
