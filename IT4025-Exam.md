@@ -103,7 +103,7 @@ Các bên thống nhất một nhóm $G$ có cấp nguyên tố $q$ với phần
 Khóa cuối cùng của nhóm là $g^b$. Rõ ràng $B$ có thể tính được khóa này. Các $A_i$ tính khóa này như thế nào? Hãy giải thích ngắn gọn.
 
 > **Trả lời:** 
-> - Tại $B$: có $g$ (do đã thống nhất trước) nên chọn $b$ ngẫu nhiên và dễ dàng tính được $g_b$.
+> - Tại $B$: có $g$ (do đã thống nhất trước) nên chọn $b$ ngẫu nhiên và dễ dàng tính được $g^b$.
 > - Tại $A$: nhận được $Y_i \leftarrow X_i^b = (g^{a_i})^b$ từ $B$ nên dễ dàng tính được $b = log_{g^{a_i}}((g^{a_i})^b) = log_{g^{a_i}}(Y_i)$. Do cũng có $g$ (do đã thống nhất trước) nên $A$ cũng dễ dàng tính được $g^b$
 > - Kẻ nghe lén: dù có bắt được toàn bộ quá trình trao đổi nhưng cũng không thể tính được khóa bí mật ($g^b$) do không biết trước $g$.
 
