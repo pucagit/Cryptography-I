@@ -4,7 +4,7 @@
 
 ### Q1.
 
-Suppose a MAC system $(S, V)$ is used to protect files in a file system by appending a MAC tag to each file. The MAC signing algorith S is applied to the file contents and nothing else. What tampering attacks are not prevented by this system?
+Suppose a MAC system $(S, V)$ is used to protect files in a file system by appending a MAC tag to each file. The MAC signing algorithm $S$ is applied to the file contents and nothing else. What tampering attacks are not prevented by this system?
 
 - [x] Changing the last modification time of a file.
 - [ ] Replacing the contents of a file with the concatenation of two files on the file system.
@@ -17,12 +17,13 @@ Suppose a MAC system $(S, V)$ is used to protect files in a file system by appen
 
 ### Q2.
 
-Let $(S, V)$ be a secure MAC defined over $(K, M, T)$ where $M = \{0, 1\}^{n}$ and $T = \{0, 1\}^{128}$. That is, the key space is $K$, message space is $\{0, 1\}^{n}$, and tag space is $\{0, 1\}^{128}$.
+Let $(S, V)$ be a secure MAC defined over $(K, M, T)$ where $M = \{0, 1\}^{n}$ and $T = \{0, 1\}^{128}$. That is, the key space is $K$, message space is $\{0, 1\}^{n}$, and tag space is $\{0, 1\}^{128}$. Which of the following is a secure MAC: 
 
 - [x] $S'((k_1, k_2), m) = (S(k_1, m), S(k_2, m))$ and $V'((k_1, k_2), m, (t_1, t_2)) = [V(k_1, m, t_1)$ and $V(k_2, m, t_2)]$
       (i.e., $V'((k_1, k_2), m, (t_1, t_2))$ outputs `1` if both $t_1$ and $t_2$ are valid tags)
   > **Explain:** a forger for $(S', V')$ gives a forger for $(S, V)$
 - [ ] $S'(k, m) = S(k, m \oplus m )$ and $V'(k, m, t) = V(k, m \oplus m, t)$
+  > **Explain:** every message would have the same tag and could be verified.
 - [x] $S'(k, m) = S(k, m || m )$ and $V'(k, m, t) = V(k, m || m, t)$
   > **Explain:** a forger for $(S', V')$ gives a forger for $(S, V)$
 - [ ] \( S'(k, m) = S(k, m) \) and
@@ -33,7 +34,9 @@ Let $(S, V)$ be a secure MAC defined over $(K, M, T)$ where $M = \{0, 1\}^{n}$ a
       1 & \text{otherwise}
       \end{cases}
       \]
+  > **Explain:** if message m is changed to $m = 0^n$, it would still be verified.
 - [ ] $S'(k, m) = S(k, m[0, ..., n - 2] || 0)$ and $V'(k, m, t) = V(k, m[0, ..., n - 2] || 0)$
+  > **Explain:** 2 messages with different last bit would still be verified.
 - [x] \( S'(k, m) = [t \leftarrow S(k, m), \text{ output}(t, t)] \) and
       \[
       V'(k, m, (t_1, t_2)) =
@@ -72,7 +75,11 @@ How should Alice assign keys to the 6 users so that no single user can forge pac
 - [ ] $S_1 = \{k_1, k_2\}, S_2 = \{k_2, k_3\}, S_3 = \{k_3, k_4\}, S_4 = \{k_1, k_3\}, S_5 = \{k_1, k_2\}, S_6 = \{k_1, k_4\}$
 - [x] $S_1 = \{k_2, k_4\}, S_2 = \{k_2, k_3\}, S_3 = \{k_3, k_4\}, S_4 = \{k_1, k_3\}, S_5 = \{k_1, k_2\}, S_6 = \{k_1, k_4\}$
 
-> **Explain:** Every user can only generate tags with the 2 keys he has. Since no set $S_i$ is contained in another set $S_j$, no user $i$ can fool a user $j$ into accepting a message sent by $i$.
+> **Explain:**
+> - (a) $S_3, S_5$ can forge packets of behalf of Alice to $S_6$ since $S_6$ only verifies $k_4$ which is contained in $S_3, S_5$. 
+> - (b) $S_1, S_3$ can forge packets of behalf of Alice to $S_2$ since $S_2$ only verifies $k_1$ which is contained in $S_1, S_53$. 
+> - (c) $S_1$ can forge packets of behalf of Alice to $S_5$ since $S_5$ only verifies $k_1, k_2$ which is contained in $S_1$. 
+> - (d) Every user can only generate tags with the 2 keys he has. Since no set $S_i$ is contained in another set $S_j$, no user $i$ can fool a user $j$ into accepting a message sent by $i$.
 
 ### Q5.
 
@@ -101,11 +108,10 @@ Let $H: M \rightarrow T$ be a collision resistant hash function. Which of the fo
 - [x] $H'(m) = H(m) || H(m)$
 - [ ] $H'(m) = H(m)[0, ..., 31]$
       (i.e. output the first 32 bits of the hash)
-  > **Explain:** Might exist 2 message $m$ such that they have different MAC that only differs at the last bit (which is still collision resistant in $H(m)$) but won't be collision resistant anymore if dropping the last bit in $H'(m)$.
+  > **Explain:** Might exist 2 messages $m$ such that they have different MACs that only differs at the last bit (which is still collision resistant in $H(m)$) but won't be collision resistant anymore if dropping the last bit in $H'(m)$.
 - [ ] $H'(m) = H(m[0, ..., |m| -2])$
-  > **Explain:** $H(00) = H(11)$ $\rightarrow$ a collision.
+  > **Explain:** $H'(00) = H'(01)$ $\rightarrow$ a collision.
 - [x] $H'(m) = H(H(H(m)))$
-  > **Explain:** a collision finder for $H'$ gives a collision finder for $H$.
 
 ### Q7.
 
@@ -137,6 +143,10 @@ Your goal is to find two distinct pairs $(x_1, y_1)$ and $(x_2, y_2)$ such that 
 - [ ] Choose $x_1, y_1, y_2$ arbitrary (with $y_1 \neq y_2$) and let $v := AES(y_1, x_1)$.
       Set $x_2 = AES^{-1}(y_2, v \oplus y_2)$
 
+> **Explain:** We are given:
+> - $f_1(x_1, y_1) = v \oplus y_1$.
+> - $f_1(x_2, y_2) = AES(y_2, AES^{-1}(y_2, v \oplus y_1 \oplus y_2)) \oplus y_2 = v \oplus y_1 \oplus y_2 \oplus y_2 = v \oplus y_1 = f_1(x_1, y_1)$.
+
 ### Q9.
 
 Repeat the previous question, but now to find a collision for the compression function
@@ -151,6 +161,10 @@ Which of the following methods finds the required $(x_1, y_1)$ and $(x_2, y_2)$?
 - [x] Choose $x_1, x_2, y_1$ arbitrary (with $x_1 \neq x_2$) and set $y_2 = y_1 \oplus AES(x_1, x_1) \oplus AES(x_2, x_2)$
 - [ ] Choose $x_1, x_2, y_1$ arbitrary (with $x_1 \neq x_2$) and set $y_2 = y_1 \oplus x_1 \oplus AES(x_2, x_2)$
 - [ ] Choose $x_1, x_2, y_1$ arbitrary (with $x_1 \neq x_2$) and set $y_2 = y_1 \oplus AES(x_1, x_1)$
+
+> **Explain:** We are given:
+> - $f_2(x_1, y_1) = AES(x_1, x_1) \oplus y_1$
+> - $f_2(x_2, y_2) = AES(x_2, x_2) \oplus y_1 \oplus AES(x_1, x_1) \oplus AES(x_2, x_2) = AES(x_1, x_1) \oplus y_1 = f_2(x_1, y_1)$.
 
 ### Q10.
 
