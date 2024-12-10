@@ -8,7 +8,7 @@ We consider the ElGamal signature scheme. You are given Bob's private key $sk = 
 > We are given:
 > - $p = 29$ (a prime modulus),
 > - $g = 2$ (a generator),
-> - $g^d = 7$ (Bob's public key component, derived from $d$),
+> - $g^d = 7$ (Bob's public key component, derived from $d$), 
 > - $d = 12$ (Bob's private key),
 > - $m = 20$ (message to sign),
 > - $k_E = 5$ (ephemeral key, randomly chosen).

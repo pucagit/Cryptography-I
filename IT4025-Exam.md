@@ -70,7 +70,9 @@ Giả sử $(E, D)$ là một hệ mã xác thực (authenticated encryption), v
     ⊥ & \text{nếu ngược lại}
 \end{cases}$
 
-> **Trả lời:** Không vì tính xác thực không được đảm bảo: Kẻ tấn công có thể thay $c_1, c_2$ bằng $c_3, c_4$ với $c_3 = c_4 \neq c_1$ và khiến cho hệ $(E', D')$ không biết rằng bản mật đã bị thay đổi.
+> **Trả lời:** Có, vì $(E', D')$ đảm bảo:
+> - An toàn ngữ nghĩa (semantic security): vì $(E, D)$ là hệ mã xác thực
+> - Tính toàn vẹn (ciphertext integrity): vì nó thực hiện kiểm tra tính toàn vẹn của $c$ thông qua $D(k_2, c)$
 
 (c) $E'(k, m) = (E(k, m), 0) \quad \text{ và } \quad D'(k, (c, b)) = D(k, c)$
 
