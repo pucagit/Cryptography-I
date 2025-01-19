@@ -1,5 +1,7 @@
 # Midterm Practice Worksheet CS 255
 
+---
+
 ### Problem 0.
 
 We consider the ElGamal signature scheme. You are given Bob's private key $sk = d = (12)$ and the correspoding public key $pk = (p, g, g^d) = (29, 2, 7)$. Compute the ElGamal signature (r, s) for a message from Bob to Alice with message $m = 20$ and ephemeral key $k_E = 5$.
@@ -268,12 +270,29 @@ In this question we show that iteration does not always slow down the time to ev
 Consider the function: $H: \mathbb{Z} \rightarrow \mathbb{Z}$ defined by 
 $$H_{p,a,b}(x) = ax + b \text{ mod } p$$ where $p$ is a prime and $a, b$ are some fixed integers in $\mathbb{Z}$ that are chosen at random when the function is first defined. The attacker knows $p,a,b$. This function, is not one-way and should not be used to hash passwords, but is useful for making the point of this excercise.
 Let $H^{(n)}$ be the results of iterating $H_{p,a,b}$ a total of $n$ times (say $n = 1000$). The attacker is given $p,a,b$ and its goal is to write down the fastest program for evaluating $H^{(n)}(x)$ for $x \in \mathbb{Z}_p$. How fast can this program be?
-- [ ] Evaluating $H^{(n)}(x)$ can be done as fast as evaluating $H_{(p,a,b)}(x)$.
+- [x] Evaluating $H^{(n)}(x)$ can be done as fast as evaluating $H_{(p,a,b)}(x)$.
 - [ ] Evaluating $H^{(n)}(x)$ takes twice as long as evaluating $H_{(p,a,b)}(x)$.
 - [ ] Evaluating $H^{(n)}(x)$ takes time $O(n)$.
 - [ ] Evaluating $H^{(n)}(x)$ takes time $O(logn)$.
 
----
+> **Explain:**
+> 1. First application:
+   \[
+   H(x) = (a \cdot x + b) \mod p.
+   \]
+> 2. Second application:
+   \[
+   H^{(2)}(x) = H(H(x)) = a \cdot (a \cdot x + b) + b \mod p = a^2 \cdot x + a \cdot b + b \mod p.
+   \]
+> 3. Third application:
+   \[
+   H^{(3)}(x) = H(H^{(2)}(x)) = a \cdot (a^2 \cdot x + a \cdot b + b) + b \mod p = a^3 \cdot x + a^2 \cdot b + a \cdot b + b \mod p.
+   \]
+> By induction, the \( n \)-th iteration of \( H \) is:
+\[
+H^{(n)}(x) = a^n \cdot x + b \cdot \frac{a^n - 1}{a - 1} \mod p,
+\]
+> Therefore Evaluating $H^{(n)}(x)$ can be done as fast as evaluating $H_{(p,a,b)}(x)$.
 
 ### Problem 20
 
@@ -299,5 +318,31 @@ Evil → Bank:   $g^{a} \text{, } cert_{evil} \text{, } S_{evil}(g^a)$
 Evil → Bank:   $g^{(a')} \text{, } cert_{evil} \text{, } S_{evil}(g^{(a')})$ 
 - [ ] The attacker blocks Bank's message and replaces it with the following message to Alice:
 Evil → Alice:   $g^{b} \text{, } cert_{evil} \text{, } S_{evil}(g^a, g^b)$ 
-- [ ] The attacker chooses $b' \leftarrow \mathbb{Z}_q$, blocks Bank's message, and replaces it with the following message to Alice:
+- [x] The attacker chooses $b' \leftarrow \mathbb{Z}_q$, blocks Bank's message, and replaces it with the following message to Alice:
 Evil → Alice:   $g^{(b')} \text{, } cert_{evil} \text{, } S_{evil}(g^a, g^{(b')})$ 
+
+> **Explain:**
+> In this attack, the attacker "evil" successfully mislead Alice into using $$k \gets H(g^{ab'}, \text{"alice"})$$
+> Which makes the attacker easily reconstruct $k$ and fools Alice into establishing a session with him.
+
+### Problem 21
+
+Alice and Bob caught the flu. Alice has a list of people \( S_a = \{u_1, \ldots, u_n\} \subseteq \text{ID} \) that she recently came in contact with. Similarly, Bob has a list of people \( S_b \subseteq \text{ID} \) that he came in contact with. They want to identify the subset of people that they both came in contact with, namely the people in \( S_a \cap S_b \), that could have been the source of the flu. The problem is that Bob does not want to reveal his contacts \( S_b \) to Alice, and similarly Alice does not want to reveal her contacts \( S_a \) to Bob. How can they compute the intersection?
+
+This problem is called **private set intersection**: the items in the intersection of \( S_a \) and \( S_b \) should be revealed, but nothing else should be revealed about the sets. The simplest solution uses a mechanism called an **oblivious PRF**. Let \( F \) be a secure PRF defined over \( (K, \text{ID}, \mathcal{Y}) \), where \( \mathcal{Y} = \{0, 1\}^{256} \). Suppose Alice has some \( u \in \text{ID} \), and Bob has a random \( k \in K \). An oblivious PRF is a protocol between Alice and Bob, so that at the end of the protocol Alice obtains \( y := F(k, u) \). However, Bob learns nothing about \( u \), and Alice learns nothing else about \( k \). 
+
+Suppose Alice has \( S_a = \{u_1, \ldots, u_n\} \subseteq \text{ID} \), and Bob has \( S_b = \{v_1, \ldots, v_m\} \subseteq \text{ID} \). To compute the intersection \( S_a \cap S_b \), they decide to use the following protocol:
+
+- **Step 1**: Bob chooses a \( k \in K \).
+- **Step 2**: Alice and Bob run the oblivious PRF protocol \( n \) times, once for each element in \( S_a \).  
+  Alice learns \( \tilde{u}_i := F(k, u_i) \) for \( i = 1, \ldots, n \), but Bob learns nothing about \( S_a \) other than its size.
+- **Step 3**: Bob computes \( \tilde{v}_j := F(k, v_j) \) for all \( j = 1, \ldots, m \), and sends \( \tilde{v}_1, \ldots, \tilde{v}_m \in \mathcal{Y} \) to Alice.
+- **Step 4**: Alice finds all \( u \in S_a \) such that \( \tilde{u} := F(k, u) \) is in \( \{\tilde{v}_1, \ldots, \tilde{v}_m\} \). She outputs the set of all such \( u \) as the intersection \( S_a \cap S_b \).
+
+Bob clearly learns nothing about \( S_a \) in this protocol, other than its size. What should Bob do to ensure that Alice learns the intersection but learns nothing else about his set \( S_b \), other than its size?
+- [ ] Choose \( k, k' \gets K \), then use \( k \) in step 2 and \( k' \) in step 3.  
+- [ ] Always set \( k \) to \( 0 \in K \) in step 1.  
+- [x] Choose \( k \gets K \) in step 1, and delete \( k \) once the protocol is finished.  
+- [ ] Send \( k \) to Alice at the end of the protocol.  
+
+> **Explain:** this ensures that Alice won't be able to query $F(k,x)$ for arbitrary values $x$ and learns something aboyt $S_b$ 
