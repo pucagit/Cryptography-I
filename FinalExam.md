@@ -116,11 +116,11 @@ Recall that when encrypting data you should typically use a symmetric encryption
 ### Q11.
 Which of the following statements is true about the basic Diffie-Hellman key-exchange protocol.
 
-- [ ] The protocol can be converted to a public-key encryption system called the ElGamal public-key system.
+- [x] The protocol can be converted to a public-key encryption system called the ElGamal public-key system.
   > **Explain:** Definition of ElGamal public-key system.
 - [ ] As with RSA, the protocol only provides eavesdropping security in the group $\mathbb{Z}^*_N$ where $N$ is an RSA modulus.
 - [ ] The basic protocol provides key exchang secure against active adversaries that can inject and modify messages.
-- [ ] The protocol provides security against eavesdropping in any finite group in wich the Hash Diffie-Hellman (HDH) assumption holds.
+- [x] The protocol provides security against eavesdropping in any finite group in wich the Hash Diffie-Hellman (HDH) assumption holds.
   > **Explain:** In any such group the hash of the Diffie-Hellman secret $g^{ab}$ can be used as a shared secret.
 
 ### Q12.
