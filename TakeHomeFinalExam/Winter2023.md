@@ -1,15 +1,17 @@
 # CS255: Take-home Final Exam 
-
+## Winter 2023
 ---
 
 ### Problem 1
 
 a. Does counter mode encryption require a PRP, or is a PRF suffcient?Justify your answer.
+> *Your answer:*
 > CTR only requires PRF since in the decryption scheme, we only need to XOR the cipher block with the encrypted version of the IV to get the message block. There is no need to invert the encryption of the IV (which requires PRP).
 
 b. Recall that the one-time pad is defined over \( (K, \mathcal{M}, \mathcal{C}) \) where \( K = \mathcal{M} = \mathcal{C} = \{0, 1\}^n \) and \( E(k, m) = k \oplus m \). Notice that when the key \( k = 0^n \) is used, then \( E(k, m) = m \), and this does not seem secure.
 
 Suppose we improve the one-time pad by setting the key space to \( K := \{0, 1\}^n \setminus \{0^n\} \). That is, we take \( 0^n \) out of the key space so that it will never be chosen as a key. Does the resulting cipher have perfect secrecy? Justify your answer.
+> *Your answer:*
 > The resulting cipher doesn't have perfect secrecy, because when removing one key ($0^n$) the key space will be reduced to $2^n-1$ which is smaller than the message space ($2^n$). That violates the property of perfect secrecy.
 
 c. Let \( G \) be a group of prime order \( p \) with generator \( g \in G \). Assume that the discrete log problem is hard in \( G \). Consider the following PRG defined over \( (\mathbb{Z}_p, G^2) \): given an input \( x \in \mathbb{Z}_p \), the PRG outputs 
@@ -19,17 +21,20 @@ G(x) := (g^{4x}, g^{5x}) \in G^2.
 \]
 
 Is this a secure PRG? If so, explain why. If not, describe an attack.
+> *Your answer:*
 > This is not a secure PRG, because their is a linear relationship between $g^{4x}$ and $g^{5x}$:
 > $$log_g(g^{4x})=\frac{4}{5} \times log_g(g^{5x}).$$
 > An attack on this is, suppose the attacker receives $(u, v)=(g^{4x}, g^{5x})$. He can then compute if $u^5=v^4$. If so, he can distinguish PRG from a truly random pair.
 
 d. What is the smallest possible positive value of \( e \) that can be used to define the RSA trapdoor function? Explain why a smaller value of \( e \) cannot be used.
+> *Your answer:*
 > The smallest possible positive value of $e$ is 3. Here is why:
 > - If $e=1$: attacker can easily compute $d=1 \mod{\phi(n)}$ and got the secret key $(N, d)$.
 > - If $e=2$: attacker can easily compute $d=\frac{N+1}{2}$ in $\mathbb{Z}_N$ ($\frac{N+1}{2}=2^{-1}=e^{-1}=d$)
 > - If $e=3$: $\phi(N)=(p-1)(q-1)$ is an even number ($p,q$ prime $\rightarrow p,q$ is odd $\rightarrow (p-1),(q-1)$ is even). Therefore $gcd(\phi(N),e=3) = 1$ which is valid to have $d=e^{-1} \mod{\phi(N)}$.
 
 e. In the ElGamal public key encryption system, is it safe to fix the group \( G \) and generator \( g \in G \), so that all users in the world use the same \( (G, g) \)?
+> *Your answer:*
 > It is safe to fix the group $G$ and generator $g \in G$, because the secret key is what needed to be kept secret and with the given public key $(g, h=g^a)$, it is hard to compute $a$ (the secret key) because of the discrete log problem. Therefore, fixing $g$ and $G$ does not affect the secret $a$.
 
 ---
@@ -45,6 +50,7 @@ H(x) := H_1(x) \oplus H_2(x)
 need not be collision-resistant.
 
 **Hint**: Let \( F \) be a collision-resistant hash function with range \( \mathcal{T} \). Use \( F \) to construct two collision-resistant functions \( H_1, H_2 \) such that \( H \) is not collision-resistant.
+> *Your answer:*
 > Let $F$ be a collision-resistant hash function with range \( \mathcal{T}=\{0,1\}^N \). Define:
 > - $H_1(x) = F(x)$ is collision-resistant
 > - $H_2(x) = F(x) \oplus 1^n$ collision-resistant
@@ -59,7 +65,7 @@ S(k, m) := \text{crypt}(m \| k) \quad ; \quad V(k, m, t) := \{\text{output yes i
 \]
 
 Here \( \| \) denotes string concatenation. Show that this MAC is vulnerable to a chosen message attack. In particular, show that an adversary can recover \( k \) with \( 8 \times 256 \) chosen message queries.
-
+> *Your answer:*
 > 1. The adversary chooses \( m \) to be a 7-character string: \( m = "aaaaaaa" \).
 > - The input to `crypt` becomes \( m \| k = "aaaaaaa" \| k = "aaaaaaa k_1" \), where \( k_1 \) is the first byte of \( k \).
 > - The adversary iterates through all 256 possible values of \( k_1 \), constructing test strings \( "aaaaaaa" \| k_1' \) for each \( k_1' \in \{0, 1, \dots, 255\} \).
@@ -95,6 +101,7 @@ V(k, m, t) := \{\text{accept if } t = F(k, A \cdot m)\}.
 Someone who did not take CS255 might argue that without \( k \), an attacker cannot compute the tag for a message \( m \) of its choice. However, show that this proposal is flawed: an attacker can carry out an existential forgery given one valid message-tag pair.
 
 **Hint**: Use the fact that because \( \ell > n \), the kernel of \( A \) is non-trivial, meaning that there are non-zero vectors \( z \in \mathbb{F}_2^\ell \) such that \( A z = 0 \).
+> *Your answer:*
 > Given: The attacker knows one valid message-tag pair $(m, t)$ where: $$t=F(k,A \cdot m)$$
 > Goal: Forge a different $m' \neq m$ along with a valid tag $t'$ such that: $$t'=F(k,A \cdot m')$$
 > Attack steps:
@@ -112,6 +119,7 @@ a. Let \( (Gen, E, D) \) be a public key encryption scheme. Let \( pk_1, pk_2, \
 Naively, Bob can encrypt the message \( M \) under each recipient’s public key and broadcast the resulting \( n \) ciphertexts all at once. This results in a broadcast message of size \( O(n \times \text{len}(M)) \). Show that Bob can encrypt \( M \) so that the broadcast message size is only \( O(n + \text{len}(M)) \).
 
 **Hint**: You may use a symmetric cipher \( (E_\text{sym}, D_\text{sym}) \) with key space \( K \) that provides authenticated encryption.
+> *Your answer:*
 > - Bob generate a symmetric key encryption scheme $(E_{sym}, D_{sym})$ with key $k_{sym}$.
 > - Encrypt the secret message $M$ using this key: $C=E_{sym}(k_{sym},M)$.
 > - Use each public key $pk_i$ to encrypt this key: $C_{ki}=E(pk_i,k_{sym})$.
@@ -128,6 +136,7 @@ To reiterate, Bob needs a way to encrypt \( M \) so that:
 3. Recipient \( i \) learns if \( i \) is in \( S \), but should learn nothing else about \( S \).
 
 **Hint**: The broadcast message size is still \( O(n + \text{len}(M)) \) even though the number of parties who receive \( M \) may be much smaller than \( n \).
+> *Your answer:*
 > Same as above but instead of encrypting directly the symmetric key $k_{sym}$. Bob now use a random blinding key $r \in K$:
 > - Compute the masked key $k'$: $k'=k \oplus r$.
 > - For each recipient $j \in S$, encrypts $r$ using their $pk_j$: $C_k=E(pk_j, r)$.
@@ -170,24 +179,30 @@ For each variant, answer two questions:
 
 **Note**: Semantic security is tied to the Decision Diffie-Hellman (DDH) assumption.
 a. Is there an efficient decryption algorithm for $E_1$?
+> *Your answer:*
 > Decryption algorithm:
 > - $v=m \cdot pk^ρ=m \cdot g^{αρ}$
 > - $\frac{v}{u^α}=\frac{m \cdot g^{αρ}}{g^{αρ+α}}=\frac{m}{g^α}=\frac{m}{pk}$
 > $\rightarrow m=pk \times \frac{v}{u^{sk}}$.
 
 b. Is $E_1$ semantically secure?
+> *Your answer:*
 > $E_1$ has semantic security because $ct$ doesn't leak any information about $sk$ or $m$.
 
 c. Is there an efficient decryption algorithm for $E_2$?
+> *Your answer:*
 > Decryption algorithm: $m=\frac{v}{pk^ρ}=\frac{v}{pk^u}$.
 
 d. Is $E_2$ semantically secure?
+> *Your answer:*
 > $E_2$ doesn't have semantic security because $ct$ reveals directly $u=ρ$ which can be use to decrypt the message without knowing the secret key (as the decryption alg. descibes above).
 
 e. Is there an efficient decryption algorithm for $E_3$?
+> *Your answer:*
 > There is no efficient decryption algorithm for this encryption scheme, since $ct$ does not provide any information about $ρ$, which is needed to compute $m$.
 
 f. Is $E_3$ semantically secure?
+> *Your answer:*
 > $E_3$ has semantic security because $ct$ doesn't leak any information about $sk$ or $m$.
 
 ---
@@ -199,6 +214,7 @@ In [class](#) we saw a signature-based challenge-response identification protoco
 a. Describe a challenge-response protocol with the same properties as the one we saw in class, except that the challenge is long and the response is short (e.g., six digits). The adversary’s success probability should be at most \( 1/2^\ell \), where \( \ell \) is the response length in bits.
 
 **Hint**: Instead of a signature scheme, construct your protocol using a public-key encryption scheme \( (G, E, D) \), where the verifier sends the encryption of a short random challenge.
+> *Your answer:*
 > **Challenge-response Protocol:**
 > - Setup: The prover use $G$ to generate $pk$ (share with the verifier) and $sk$ (kept secretly by the prover).
 > - Verifier: Generates a random long challenge $r$, encrypt it and send to the prover: $E(pk,r)$. He also computes $s=f(r)$ (where $f$ is a deterministic function, $s$ is a short response with length $l$)
@@ -210,6 +226,7 @@ a. Describe a challenge-response protocol with the same properties as the one we
 b. In the scheme from part (a), the verifier needs to keep a secret value between the time that it sends the challenge and the time it receives the response from the prover. Suppose we require the protocol to be **public coin**, meaning that the verifier cannot keep any secrets. The signature-based challenge-response protocol is an example of a public coin protocol. 
 
 Show that in this case, any challenge-response protocol (two rounds) where the prover sends back an \( \ell \)-bit message can be broken in time \( O(2^\ell) \). That is, the adversary can fool the verifier with probability 1 after performing a computation that takes time \( O(2^\ell) \). You may assume the verifier runs in constant time. Hence, if \( \ell \) is small, the protocol cannot be secure.
+> *Your answer:*
 > **Public coin protocol:**
 > - Round 1 (verifier $\rightarrow$ prover): challenge $c$
 > - Round 2 (prover $\rightarrow$ verifier): response $r$.
